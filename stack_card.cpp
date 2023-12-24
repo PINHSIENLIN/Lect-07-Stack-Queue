@@ -1,61 +1,120 @@
 // Use stack to implement dispatch program
 // Implementation of dealing 52 playing cards to 4 players, 
 // sorting them and printing the sorting results
-#include <iostream>
-#include <algorithm>
-#include <vector>
-using namespace std;
-
-#define MAX_SIZE 52
-#define PEOPLE 4
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #define CARD 52
+#define NUMBER 13
+#define SUIT 4
+#define PEOPLE 4
+#define MAX_SIZE 52
 
-struct Stack {
-  int data[MAX_SIZE];
-  int top;
-};
+int stack[MAX_SIZE];
+int top=-1;
 
-void push(Stack* stack, int value) {
-  // check if Stack is full
-  if (stack->top == MAX_SIZE - 1) { 
-      return;
-  } 
-  else {
-    // stack: Assuming stack is a pointer to an object of some class or structure.
-    // stack->top: Accesses the member variable top of the object pointed to by stack.
-    // ++stack->top: Increments the value of top by 1. 
-    // The pre-increment operator ++ increases the value before its current value is used.
-    stack->data[++stack->top] = value;
-  }
-}
 
-int pop(Stack* stack) {
-  // check if Stack is empty
-  if (stack->top == -1) { 
-      return -1;
-  } 
-  else {
-     int temp = stack->data[stack->top];
-    //  stack->data[stack->top] = 0;
-     --stack->top;
-     return temp;
-  }
+
+int push(int value)
+{
+	if( top == MAX_SIZE-1 )
+	{
+		return -1;
+	}
+	top++;
+	stack[top] = value;
+	return 1;
 }
 
 
+int pop()
+{
+	int temp;
 
-int main() {
-  Stack myStack;
-  myStack.top = -1; // Initialize top to -1 for empty stack
-  
-  // Call by address
-//   push(&myStack, 10);
-//   push(&myStack, 20);
+	if( top == -1 ) 
+	{
+		return -1;
+	}
+	temp = stack[top];
+	stack[top] = 0;
+	top--;
+	return temp;
+}
 
-//   cout << pop(&myStack) << endl;
-//   cout << pop(&myStack) << endl;
+void InsertionSort(int n, int *data)
+{
+	int i, j, key;
+    for( i=1; i<n; i++) 
+    {
+        key=data[i];
+        for(j=i-1; j>=0 && data[j]>key; j--)
+        {
+            data[j+1] = data[j];
+        }
+        data[j+1] = key;  
+    }
+}
 
-  vector<int> deck(52);
- 
-  return 0;
+void reshuffle()
+{
+	int pos;
+	int i;
+	int card[CARD]={0};
+	srand(time(NULL));
+	i=0;
+	while(i!=CARD)
+	{
+		pos = rand()%CARD;
+		if(card[pos]==0)
+		{
+			push(pos);
+			card[pos]=1;
+			i++;
+		}
+	}
+}
+
+void displayCard(int n, int *card)
+{
+	int i;
+	char style[4] = {6,3,4,5};	
+	printf("Player%d:\n", n+1);
+	for(i=0; i<CARD/PEOPLE; i++)
+	{
+		printf("[%c%2d] ", style[card[i]/NUMBER], card[i]%NUMBER+1);
+	}
+	printf("\n");
+}
+
+
+int main()
+{
+
+	int i, j;
+	int player[PEOPLE][CARD/PEOPLE];
+	
+	
+	reshuffle();
+	
+
+	for(i=0; i<CARD/PEOPLE; i++)
+	{
+		for(j=0; j<PEOPLE; j++)
+		{
+			player[j][i] = pop();
+		}
+	}
+
+
+	for(i=0; i<PEOPLE; i++)
+		displayCard(i, player[i]);
+	printf("\n");
+
+
+	for(i=0; i<PEOPLE; i++)
+	{
+		InsertionSort(CARD/PEOPLE, player[i]);
+		displayCard(i, player[i]);
+	}
+	return 0;
 }
